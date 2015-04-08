@@ -1,0 +1,23 @@
+{
+  "name": "fuzzy-matching",
+  "version": "1.0.0",
+  "description": "Fuzzy string matcher",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "fuzzy",
+    "language",
+    "matching"
+  ],
+  "author": "Jeroen Engels <jfm.engels@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "fuzzyset.js": "0.0.1"
+  },
+  "devDependencies": {
+    "chai": "^2.2.0",
+    "mocha": "^2.2.4"
+  }
+}
