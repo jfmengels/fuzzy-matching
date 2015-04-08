@@ -30,7 +30,7 @@ FuzzyMatching.prototype.get = function(item) {
     if (res) {
         res = res[0];
         // Get back accentuated item
-    	return this.itemMap[res[1]];
+        return this.itemMap[res[1]];
     }
     return res;
 };

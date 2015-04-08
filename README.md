@@ -10,6 +10,8 @@ npm install fuzzy-matching
 ## Code sample
 
 ```js
+var FuzzyMatching = require('fuzzy-matching');
+
 var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
 
 // Finds words
@@ -25,10 +27,17 @@ console.log(fm.get('ThRouHg')); // --> through
 
 // Accent-proof
 console.log(fm.get('cafe')); // --> Café
+
+// Add words after creation
+console.log(fm.get('dinosaur')); // --> null, because too remote to anything in the dictionary
+fm.add('dinosaur');
+console.log(fm.get('dinosaur')); // --> dinosaur
 ```
 
 ### Use case: quizzes or user inputs with certain expected answers
 ```js
+var FuzzyMatching = require('fuzzy-matching');
+
 var possibleAnswers = ['Jupiter', 'Mercury', 'Venus', 'Earth'],
     fm = new FuzzyMatching(possibleAnswers),
     answer = 'Mercury';
