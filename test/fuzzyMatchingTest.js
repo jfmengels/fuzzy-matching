@@ -121,7 +121,7 @@ describe('fuzzy matching', function() {
             expect(fm.add('anotherword')).to.be.false;
         });
 
-        it('should return false when adding a word already in the dictionary or close to one', function() {
+        it('should return false when adding a non-string item', function() {
             expect(fm.add()).to.be.false;
             expect(fm.add(null)).to.be.false;
             expect(fm.add(['cafe'])).to.be.false;
@@ -136,31 +136,6 @@ describe('fuzzy matching', function() {
             var fm1 = new FuzzyMatching(['a', 'b', 'c']);
             var fm2 = new FuzzyMatching();
             expect(fm1.itemMap).to.not.equal(fm2.itemMap);
-        });
-    });
-
-    describe('README examples should work', function() {
-        it('simple usage', function() {
-            var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
-            expect(fm.get('tough')).to.equal('tough');
-            expect(fm.get('thouhgt')).to.equal('thought');
-            expect(fm.get('throught')).to.equal('through');
-            expect(fm.get('ThRouHg')).to.equal('through');
-            expect(fm.get('cafe')).to.equal('Café');
-
-            expect(fm.get('dinosaur')).to.be.null;
-            fm.add('dinosaur');
-            expect(fm.get('dinosaur')).to.equal('dinosaur');
-        });
-
-        it('quizz', function() {
-            var possibleAnswers = ['Jupiter', 'Mercury', 'Venus', 'Earth'],
-                fm = new FuzzyMatching(possibleAnswers);
-
-            var userAnswer = 'mercuyr';
-            expect(fm.get(userAnswer, {
-                min: 0.7
-            })).to.equal('Mercury');
         });
     });
 });
