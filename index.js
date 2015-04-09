@@ -14,6 +14,9 @@ function FuzzyMatching(items) {
 }
 
 FuzzyMatching.prototype.add = function(item) {
+    if (typeof item !== 'string') {
+        return false;
+    }
     var itemWithoutAccents = removeAccents(item);
     if (this.itemMap[itemWithoutAccents]) {
         return false;
@@ -35,6 +38,9 @@ FuzzyMatching.prototype.get = function(item, criteria) {
 };
 
 FuzzyMatching.prototype.getWithGrams = function(item, criteria) {
+    if (typeof item !== 'string') {
+        return null;
+    }
     criteria = criteria || {};
 
     var res = this.set.get(item);

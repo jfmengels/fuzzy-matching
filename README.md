@@ -32,6 +32,15 @@ console.log(fm.get('cafe')); // --> Café
 console.log(fm.get('dinosaur')); // --> null, because too remote to anything in the dictionary
 fm.add('dinosaur');
 console.log(fm.get('dinosaur')); // --> dinosaur
+
+// Do you want to see the degree of resemblance?
+console.log(fm.getWithGrams('touch')); // --> [ 0.8, 'tough' ] = [degree of resemblance i.e. "grams", fm.get('touch')]
+
+// Want to limit to a certain degree of resemblance?
+console.log(fm.getWithGrams('touch', { min: 0.9 })); // --> null
+console.log(fm.getWithGrams('touch', { min: 0.7 })); // --> [ 0.8, 'tough' ]
+// Available with a simple get too
+console.log(fm.get('touch', { min: 0.7 })); // --> 'tough'
 ```
 
 ### Use case: quizzes or user inputs with certain expected answers
@@ -47,11 +56,11 @@ console.log('Which planet is the closest to the Sun: ' + possibleAnswers.join(',
 // Some user stuff...
 
 var userAnswer = 'mercuyr';
-var correctedAnswer = fm.get(userAnswer);
+var correctedAnswer = fm.get(userAnswer, { min: 0.7 });
 if (answer === correctedAnswer) {
     console.log('That\'s right!, it\'s ' + answer + '!');
 } else {
-    console.log('Sorry buddy, the answer was ' + answer);
+    console.log('Sorry buddy, the answer was ' + answer + '.');
 }
 ```
 

@@ -29,6 +29,15 @@ describe('fuzzy matching', function() {
         it('should not find words too remote to anything in the dictionary', function() {
             expect(fm.get('dinosaur')).to.be.null;
         });
+
+        it('should return null when parameter is not a string', function() {
+            expect(fm.get()).to.be.null;
+            expect(fm.get(null)).to.be.null;
+            expect(fm.get(['cafe'])).to.be.null;
+            expect(fm.get({
+                a: 1
+            })).to.be.null;
+        });
     });
 
     describe('#getWithGrams', function() {
@@ -107,9 +116,18 @@ describe('fuzzy matching', function() {
         });
 
         it('should return false when adding a word already in the dictionary or close to one', function() {
-            fm.add('anotherWord');
-            expect(fm.add('anotherWord')).to.be.false;
+            expect(fm.add('anotherWord')).to.be.true;
             expect(fm.add('anotherword')).to.be.false;
+            expect(fm.add('anotherword')).to.be.false;
+        });
+
+        it('should return false when adding a word already in the dictionary or close to one', function() {
+            expect(fm.add()).to.be.false;
+            expect(fm.add(null)).to.be.false;
+            expect(fm.add(['cafe'])).to.be.false;
+            expect(fm.add({
+                a: 1
+            })).to.be.false;
         });
     });
 
@@ -140,7 +158,9 @@ describe('fuzzy matching', function() {
                 fm = new FuzzyMatching(possibleAnswers);
 
             var userAnswer = 'mercuyr';
-            expect(fm.get(userAnswer)).to.equal('Mercury');
+            expect(fm.get(userAnswer, {
+                min: 0.7
+            })).to.equal('Mercury');
         });
     });
 });
