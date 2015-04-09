@@ -31,6 +31,64 @@ describe('fuzzy matching', function() {
         });
     });
 
+    describe('#getWithGrams', function() {
+        var fm;
+
+        before(function() {
+            fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
+        });
+
+        it('should return an array like [grams, word]', function() {
+            var res = fm.getWithGrams('ThRouHg');
+            expect(res).to.have.length(2);
+            expect(res[0]).to.be.within(0, 1);
+            expect(res[1]).to.equal('through');
+        });
+
+    });
+
+    describe('gram criteria', function() {
+        var fm, grams, wordToLookFor, wordExpected;
+
+        before(function() {
+            fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
+            wordToLookFor = 'tour';
+            wordExpected = 'tough';
+            var res = fm.getWithGrams(wordToLookFor);
+            grams = res[0];
+            expect(res[1]).to.equal(wordExpected);
+        });
+
+        it('should refuse words when the number of grams is less than required', function() {
+            var criteria = {
+                min: grams + 0.1
+            };
+            expect(fm.get(wordToLookFor, criteria)).to.be.null;
+            expect(fm.getWithGrams(wordToLookFor, criteria)).to.be.null;
+        });
+
+        it('should find words when the number of grams is more than required', function() {
+            var criteria = {
+                min: grams - 0.1
+            };
+            var res = fm.getWithGrams(wordToLookFor, criteria);
+            expect(res).to.have.length(2);
+            expect(res[0]).to.equal(grams, "grams should not have changed between two calls");
+            expect(res[1]).to.equal(wordExpected, "resulting word should not have changed between two calls");
+            expect(res[1]).to.equal(wordExpected, "resulting word should not have changed between two calls");
+        });
+
+        it('should find words when the number of grams is equal to minimum required', function() {
+            var criteria = {
+                min: grams
+            };
+            var res = fm.getWithGrams(wordToLookFor, criteria);
+            expect(res).to.have.length(2);
+            expect(res[0]).to.equal(grams, "grams should not have changed between two calls");
+            expect(res[1]).to.equal(wordExpected, "resulting word should not have changed between two calls");
+        });
+    });
+
     describe('#add', function() {
         var fm;
 

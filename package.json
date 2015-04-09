@@ -1,6 +1,6 @@
 {
   "name": "fuzzy-matching",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "Fuzzy string matcher",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,10 @@
     "language",
     "matching"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jfmengels/fuzzy-matching.git"
+  },
   "author": "Jeroen Engels <jfm.engels@gmail.com>",
   "license": "ISC",
   "dependencies": {
