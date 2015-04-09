@@ -1,6 +1,6 @@
 {
   "name": "fuzzy-matching",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Fuzzy string matcher",
   "main": "index.js",
   "scripts": {
