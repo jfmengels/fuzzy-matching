@@ -29,33 +29,30 @@ FuzzyMatching.prototype.add = function(item) {
 };
 
 FuzzyMatching.prototype.get = function(item, criteria) {
-    var res = this.getWithGrams(item, criteria);
-    if (res) {
-        // Return only the word
-        return res[1];
-    }
-    return res;
-};
-
-FuzzyMatching.prototype.getWithGrams = function(item, criteria) {
+    var notFoundValue = {
+        distance: 0,
+        value: null
+    };
     if (typeof item !== 'string') {
-        return null;
+        return notFoundValue;
     }
     criteria = criteria || {};
 
     var res = this.set.get(removeAccents(item));
-    if (res) {
-        res = res[0];
-        var grams = res[0];
-        var withAccents = this.itemMap[res[1]];
-
-        if (criteria && grams < criteria.min) {
-            // Doesn't match minimum requirements --> Discard it
-            return null;
-        }
-        return [grams, withAccents];
+    if (!res) {
+        return notFoundValue;
     }
-    return res;
+
+    res = res[0];
+    if (criteria.min && res[0] < criteria.min) {
+        // If it doesn't match minimum requirements --> Consider not found
+        return notFoundValue;
+    }
+
+    return {
+        distance: res[0],
+        value: this.itemMap[res[1]]
+    };
 };
 
 module.exports = FuzzyMatching;

@@ -5,23 +5,56 @@ var FuzzyMatching = require('..');
 describe('README examples should work', function() {
     it('simple usage', function() {
         var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
-        expect(fm.get('tough')).to.equal('tough');
-        expect(fm.get('thouhgt')).to.equal('thought');
-        expect(fm.get('throught')).to.equal('through');
-        expect(fm.get('ThRouHg')).to.equal('through');
-        expect(fm.get('cafe')).to.equal('Café');
+        expect(fm.get('tough')).to.deep.equal({
+            distance: 1,
+            value: 'tough'
+        });
 
-        expect(fm.get('dinosaur')).to.be.null;
+        expect(fm.get('thouhgt')).to.deep.equal({
+            distance: 0.7142857142857143,
+            value: 'thought'
+        });
+
+        expect(fm.get('throught')).to.deep.equal({
+            distance: 0.875,
+            value: 'through'
+        });
+
+        expect(fm.get('ThRouHg').value).to.equal('through');
+
+        expect(fm.get('cafe')).to.deep.equal({
+            distance: 1,
+            value: 'Café'
+        });
+
+        expect(fm.get('dinosaur')).to.deep.equal({
+            distance: 0,
+            value: null
+        });
         fm.add('dinosaur');
-        expect(fm.get('dinosaur')).to.equal('dinosaur');
+        expect(fm.get('dinosaur')).to.deep.equal({
+            distance: 1,
+            value: 'dinosaur'
+        });
 
-        expect(fm.getWithGrams('touch')).to.deep.equals([ 0.8, 'tough' ]);
+        expect(fm.get('touch')).to.deep.equal({
+            distance: 0.8,
+            value: 'tough'
+        });
 
-        // Want to limit to a certain degree of resemblance?
-        expect(fm.getWithGrams('touch', { min: 0.9 })).to.equal(null);
-        expect(fm.getWithGrams('touch', { min: 0.7 })).to.deep.equals([ 0.8, 'tough' ]);
-        // Available with a simple get too
-        expect(fm.get('touch', { min: 0.7 })).to.equal('tough');
+        expect(fm.get('touch', {
+            min: 0.9
+        })).to.deep.equal({
+            distance: 0,
+            value: null
+        });
+
+        expect(fm.get('touch', {
+            min: 0.7
+        })).to.deep.equal({
+            distance: 0.8,
+            value: 'tough'
+        });
     });
 
     it('quizz', function() {
@@ -29,8 +62,9 @@ describe('README examples should work', function() {
             fm = new FuzzyMatching(possibleAnswers);
 
         var userAnswer = 'mercuyr';
-        expect(fm.get(userAnswer, {
+        var res = fm.get(userAnswer, {
             min: 0.7
-        })).to.equal('Mercury');
+        });
+        expect(res.value).to.equal('Mercury');
     });
 });
