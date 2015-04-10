@@ -2,6 +2,11 @@ var expect = require('chai').expect;
 
 var FuzzyMatching = require('..');
 
+var nullValue = {
+    distance: 0,
+    value: null
+};
+
 describe('fuzzy matching', function() {
     describe('#get', function() {
         var fm;
@@ -11,101 +16,106 @@ describe('fuzzy matching', function() {
         });
 
         it('should find words that are inside the dictionary', function() {
-            expect(fm.get('tough')).to.equal('tough');
+            var res = fm.get('tough');
+            console.log(res);
+            expect(res).to.be.a('object');
+            expect(res.distance).to.be.within(0, 1);
+            expect(res.value).to.equal('tough');
         });
 
         it('should find words that are spelled incorrectly', function() {
-            expect(fm.get('thouhgt')).to.equal('thought');
+            var res = fm.get('thouhgt');
+            expect(res).to.be.a('object');
+            expect(res.distance).to.be.within(0, 1);
+            expect(res.value).to.equal('thought');
         });
 
         it('should ignore case', function() {
-            expect(fm.get('ThRouHg')).to.equal('through');
+            var res = fm.get('ThRouHg');
+            expect(res).to.be.a('object');
+            expect(res.distance).to.be.within(0, 1);
+            expect(res.value).to.equal('through');
         });
 
         it('should ignore accents', function() {
-            expect(fm.get('cafe')).to.equal('Café');
+            var res = fm.get('cafe');
+            expect(res).to.be.a('object');
+            expect(res.distance).to.be.within(0, 1);
+            expect(res.value).to.equal('Café');
         });
 
         it('should not find words too remote to anything in the dictionary', function() {
-            expect(fm.get('dinosaur')).to.be.null;
+            expect(fm.get('dinosaur')).to.deep.equal(nullValue);
         });
 
         it('should return null when parameter is not a string', function() {
-            expect(fm.get()).to.be.null;
-            expect(fm.get(null)).to.be.null;
-            expect(fm.get(['cafe'])).to.be.null;
+            expect(fm.get()).to.deep.equal(nullValue);
+            expect(fm.get(null)).to.deep.equal(nullValue);
+            expect(fm.get(['cafe'])).to.deep.equal(nullValue);
             expect(fm.get({
                 a: 1
-            })).to.be.null;
+            })).to.deep.equal(nullValue);
+        });
+
+        describe('distance values', function() {
+            it('should have a distance value equal to 1 when strings match exactly', function() {
+                var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
+                var res = fm.get('Café');
+                expect(res).to.be.a('object');
+                expect(res.distance).to.equal(1);
+                expect(res.value).to.equal('Café');
+            });
+
+            it('should have a distance value equal to 1 when complex strings match exactly', function() {
+                var value = 'Un terme mathématique (Googol), qui désigne 1 nombre commençant par “1” suivi de 100 zéros';
+                var fm = new FuzzyMatching([value]);
+                var res = fm.get(value);
+                expect(res).to.be.a('object');
+                expect(res.distance).to.equal(1);
+                expect(res.value).to.equal(value);
+            });
         });
     });
 
-    describe('#getWithGrams', function() {
-        it('should return an array like [grams, word]', function() {
-            var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
-            var res = fm.getWithGrams('ThRouHg');
-            expect(res).to.have.length(2);
-            expect(res[0]).to.be.within(0, 1);
-            expect(res[1]).to.equal('through');
-        });
-
-        it('should have a gram value equal to 1 when strings match exactly', function() {
-            var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
-            var res = fm.getWithGrams('Café');
-            expect(res).to.have.length(2);
-            expect(res[0]).to.equal(1);
-            expect(res[1]).to.equal('Café');
-        });
-
-        it('should have a gram value equal to 1 when complex strings match exactly', function() {
-            var value = 'Un terme mathématique (Googol), qui désigne 1 nombre commençant par “1” suivi de 100 zéros';
-            var fm = new FuzzyMatching([value]);
-            var res = fm.getWithGrams(value);
-            expect(res).to.have.length(2);
-            expect(res[0]).to.equal(1);
-            expect(res[1]).to.equal(value);
-        });
-    });
-
-    describe('gram criteria', function() {
-        var fm, grams, wordToLookFor, wordExpected;
+    describe('distance criteria', function() {
+        var fm, wordToLookFor, reference;
 
         before(function() {
             fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
             wordToLookFor = 'tour';
-            wordExpected = 'tough';
-            var res = fm.getWithGrams(wordToLookFor);
-            grams = res[0];
-            expect(res[1]).to.equal(wordExpected);
+            reference = fm.get(wordToLookFor);
+            expect(reference).to.be.a('object');
+            expect(reference.distance).to.be.within(0, 1);
+            expect(reference.value).to.equal('tough');
         });
 
-        it('should refuse words when the number of grams is less than required', function() {
+        it('should refuse words when the distance is less than required', function() {
             var criteria = {
-                min: grams + 0.1
+                min: reference.distance + 0.1
             };
-            expect(fm.get(wordToLookFor, criteria)).to.be.null;
-            expect(fm.getWithGrams(wordToLookFor, criteria)).to.be.null;
+            expect(fm.get(wordToLookFor, criteria)).to.deep.equal(nullValue);
+            expect(fm.get(wordToLookFor, criteria)).to.deep.equal(nullValue);
         });
 
-        it('should find words when the number of grams is more than required', function() {
+        it('should find words when the distance is more than required', function() {
             var criteria = {
-                min: grams - 0.1
+                min: reference.distance - 0.1
             };
-            var res = fm.getWithGrams(wordToLookFor, criteria);
-            expect(res).to.have.length(2);
-            expect(res[0]).to.equal(grams, "grams should not have changed between two calls");
-            expect(res[1]).to.equal(wordExpected, "resulting word should not have changed between two calls");
-            expect(res[1]).to.equal(wordExpected, "resulting word should not have changed between two calls");
+            var res = fm.get(wordToLookFor, criteria);
+            expect(res).to.be.a('object');
+            expect(res.distance).to.equal(reference.distance, "distance should not have changed between two calls");
+            expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
+            expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
         });
 
-        it('should find words when the number of grams is equal to minimum required', function() {
+        it('should find words when the distance is equal to minimum required', function() {
             var criteria = {
-                min: grams
+                min: reference.distance
             };
-            var res = fm.getWithGrams(wordToLookFor, criteria);
-            expect(res).to.have.length(2);
-            expect(res[0]).to.equal(grams, "grams should not have changed between two calls");
-            expect(res[1]).to.equal(wordExpected, "resulting word should not have changed between two calls");
+            var res = fm.get(wordToLookFor, criteria);
+            expect(res).to.be.a('object');
+            expect(res.distance).to.equal(reference.distance, "distance should not have changed between two calls");
+            expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
         });
     });
 
@@ -117,9 +127,12 @@ describe('fuzzy matching', function() {
         });
 
         it('should find added words', function() {
-            expect(fm.get('dinosaur')).to.be.null;
+            expect(fm.get('dinosaur')).to.deep.equal(nullValue);
             fm.add('dinosaur');
-            expect(fm.get('dinosaur')).to.equal('dinosaur');
+            expect(fm.get('dinosaur')).to.deep.equal({
+                distance: 1,
+                value: 'dinosaur'
+            });
         });
 
         it('should return true when adding a word', function() {
