@@ -43,7 +43,7 @@ FuzzyMatching.prototype.getWithGrams = function(item, criteria) {
     }
     criteria = criteria || {};
 
-    var res = this.set.get(item);
+    var res = this.set.get(removeAccents(item));
     if (res) {
         res = res[0];
         var grams = res[0];

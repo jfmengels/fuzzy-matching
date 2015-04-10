@@ -41,19 +41,30 @@ describe('fuzzy matching', function() {
     });
 
     describe('#getWithGrams', function() {
-        var fm;
-
-        before(function() {
-            fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
-        });
-
         it('should return an array like [grams, word]', function() {
+            var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
             var res = fm.getWithGrams('ThRouHg');
             expect(res).to.have.length(2);
             expect(res[0]).to.be.within(0, 1);
             expect(res[1]).to.equal('through');
         });
 
+        it('should have a gram value equal to 1 when strings match exactly', function() {
+            var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
+            var res = fm.getWithGrams('Café');
+            expect(res).to.have.length(2);
+            expect(res[0]).to.equal(1);
+            expect(res[1]).to.equal('Café');
+        });
+
+        it('should have a gram value equal to 1 when complex strings match exactly', function() {
+            var value = 'Un terme mathématique (Googol), qui désigne 1 nombre commençant par “1” suivi de 100 zéros';
+            var fm = new FuzzyMatching([value]);
+            var res = fm.getWithGrams(value);
+            expect(res).to.have.length(2);
+            expect(res[0]).to.equal(1);
+            expect(res[1]).to.equal(value);
+        });
     });
 
     describe('gram criteria', function() {
