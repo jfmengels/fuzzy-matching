@@ -1,5 +1,8 @@
 # fuzzy-matching
 Fuzzy string matcher
+[![NPM version](http://img.shields.io/npm/v/fuzzy-matching.svg?style=flat)](https://www.npmjs.com/package/fuzzy-matching)
+[![Dependencies Status](http://img.shields.io/david/jfmengels/fuzzy-matching.svg?style=flat)](https://david-dm.org/jfmengels/fuzzy-matching#info=dependencies)
+[![devDependencies Status](http://img.shields.io/david/dev/jfmengels/fuzzy-matching.svg?style=flat)](https://david-dm.org/jfmengels/fuzzy-matching#info=devDependencies)
 
 ## Installation
 
