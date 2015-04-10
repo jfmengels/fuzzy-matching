@@ -17,7 +17,6 @@ describe('fuzzy matching', function() {
 
         it('should find words that are inside the dictionary', function() {
             var res = fm.get('tough');
-            console.log(res);
             expect(res).to.be.a('object');
             expect(res.distance).to.be.within(0, 1);
             expect(res.value).to.equal('tough');
