@@ -42,17 +42,18 @@ FuzzyMatching.prototype.get = function(item, criteria) {
     if (!res) {
         return notFoundValue;
     }
-
-    res = res[0];
-    if (criteria.min && res[0] < criteria.min) {
-        // If it doesn't match minimum requirements --> Consider not found
-        return notFoundValue;
+    res = {
+        distance: res[0][0],
+        value: this.itemMap[res[0][1]]
     }
 
-    return {
-        distance: res[0],
-        value: this.itemMap[res[1]]
-    };
+    // If it doesn't match requirements --> Consider not found
+    if (criteria.min && res.distance < criteria.min) {
+        return notFoundValue;
+    } else if (criteria.maxChanges !== undefined && res.value.length && res.distance < 1 - (criteria.maxChanges / res.value.length)) {
+        return notFoundValue;
+    }
+    return res;
 };
 
 module.exports = FuzzyMatching;
