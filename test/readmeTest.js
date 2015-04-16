@@ -43,14 +43,14 @@ describe('README examples should work', function() {
         });
 
         expect(fm.get('touch', {
-            min: 0.9
+            maxChanges: 0
         })).to.deep.equal({
             distance: 0,
             value: null
         });
 
         expect(fm.get('touch', {
-            min: 0.7
+            maxChanges: 1
         })).to.deep.equal({
             distance: 0.8,
             value: 'tough'
@@ -63,7 +63,7 @@ describe('README examples should work', function() {
 
         var userAnswer = 'mercuyr';
         var res = fm.get(userAnswer, {
-            min: 0.7
+            maxChanges: 2
         });
         expect(res.value).to.equal('Mercury');
     });

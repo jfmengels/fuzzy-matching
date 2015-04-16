@@ -39,8 +39,8 @@ fm.add('dinosaur');
 console.log(fm.get('dinosaur')); // --> { distance: 1, value: 'dinosaur' }
 
 // Want to limit to a certain degree of resemblance?
-console.log(fm.get('touch', { min: 0.9 }).value); // --> null
-console.log(fm.get('touch', { min: 0.7 }).value); // --> tough
+console.log(fm.get('touch', { maxChanges: 0 }).value); // --> null
+console.log(fm.get('touch', { maxChanges: 1 }).value); // --> tough
 ```
 
 ### Use case: quizzes or user inputs with certain expected answers
@@ -56,7 +56,7 @@ console.log('Which planet is the closest to the Sun: ' + possibleAnswers.join(',
 // Some user stuff...
 
 var userAnswer = 'mercuyr';
-var correctedAnswer = fm.get(userAnswer, { min: 0.7 }).value;
+var correctedAnswer = fm.get(userAnswer, { maxChanges: 2 }).value;
 if (answer === correctedAnswer) {
     console.log('That\'s right!, it\'s ' + answer + '!');
 } else {

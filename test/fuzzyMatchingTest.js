@@ -57,7 +57,7 @@ describe('fuzzy matching', function() {
         });
 
         describe('distance values', function() {
-            it('should have a distance value equal to 1 when strings match exactly', function() {
+            it('should equal 1 when strings match exactly', function() {
                 var fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
                 var res = fm.get('Café');
                 expect(res).to.be.a('object');
@@ -65,7 +65,7 @@ describe('fuzzy matching', function() {
                 expect(res.value).to.equal('Café');
             });
 
-            it('should have a distance value equal to 1 when complex strings match exactly', function() {
+            it('should equal 1 when complex strings match exactly', function() {
                 var value = 'Un terme mathématique (Googol), qui désigne 1 nombre commençant par “1” suivi de 100 zéros';
                 var fm = new FuzzyMatching([value]);
                 var res = fm.get(value);
@@ -73,48 +73,95 @@ describe('fuzzy matching', function() {
                 expect(res.distance).to.equal(1);
                 expect(res.value).to.equal(value);
             });
+
+            it('should be the same when you invert searched and found word', function() {
+                var value1 = 'tour',
+                    value2 = 'toure';
+
+                var fm1 = new FuzzyMatching([value1]);
+                var res1 = fm1.get(value2);
+                expect(res1).to.be.a('object');
+                expect(res1.value).to.equal(value1);
+
+                var fm2 = new FuzzyMatching([value2]);
+                var res2 = fm2.get(value1);
+                expect(res2).to.be.a('object');
+                expect(res2.value).to.equal(value2);
+
+                expect(res1.distance).to.equal(res2.distance);
+                expect(res1.distance).to.be.within(0, 1);
+                expect(res2.distance).to.be.within(0, 1);
+            });
         });
     });
 
     describe('distance criteria', function() {
-        var fm, wordToLookFor, reference;
+        describe('min', function() {
+            var fm, wordToLookFor, reference;
 
-        before(function() {
-            fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
-            wordToLookFor = 'tour';
-            reference = fm.get(wordToLookFor);
-            expect(reference).to.be.a('object');
-            expect(reference.distance).to.be.within(0, 1);
-            expect(reference.value).to.equal('tough');
+            before(function() {
+                fm = new FuzzyMatching(['tough', 'thought', 'through', 'Café']);
+                wordToLookFor = 'tour';
+                reference = fm.get(wordToLookFor);
+                expect(reference).to.be.a('object');
+                expect(reference.distance).to.be.within(0, 1);
+                expect(reference.value).to.equal('tough');
+            });
+
+            it('should refuse words when the distance is less than required', function() {
+                var criteria = {
+                    min: reference.distance + 0.1
+                };
+                expect(fm.get(wordToLookFor, criteria)).to.deep.equal(nullValue);
+            });
+
+            it('should find words when the distance is more than required', function() {
+                var criteria = {
+                    min: reference.distance - 0.1
+                };
+                var res = fm.get(wordToLookFor, criteria);
+                expect(res).to.be.a('object');
+                expect(res.distance).to.equal(reference.distance, "distance should not have changed between two calls");
+                expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
+            });
+
+            it('should find words when the distance is equal to minimum required', function() {
+                var criteria = {
+                    min: reference.distance
+                };
+                var res = fm.get(wordToLookFor, criteria);
+                expect(res).to.be.a('object');
+                expect(res.distance).to.equal(reference.distance, "distance should not have changed between two calls");
+                expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
+            });
         });
 
-        it('should refuse words when the distance is less than required', function() {
-            var criteria = {
-                min: reference.distance + 0.1
-            };
-            expect(fm.get(wordToLookFor, criteria)).to.deep.equal(nullValue);
-            expect(fm.get(wordToLookFor, criteria)).to.deep.equal(nullValue);
-        });
+        describe('maxChanges', function() {
+            var fm;
 
-        it('should find words when the distance is more than required', function() {
-            var criteria = {
-                min: reference.distance - 0.1
-            };
-            var res = fm.get(wordToLookFor, criteria);
-            expect(res).to.be.a('object');
-            expect(res.distance).to.equal(reference.distance, "distance should not have changed between two calls");
-            expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
-            expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
-        });
+            before(function() {
+                fm = new FuzzyMatching(['tough', 'Café', 'dinosaur']);
+            });
 
-        it('should find words when the distance is equal to minimum required', function() {
-            var criteria = {
-                min: reference.distance
-            };
-            var res = fm.get(wordToLookFor, criteria);
-            expect(res).to.be.a('object');
-            expect(res.distance).to.equal(reference.distance, "distance should not have changed between two calls");
-            expect(res.value).to.equal(reference.value, "resulting word should not have changed between two calls");
+            it('should refuse words when the distance is less than required', function() {
+                expect(fm.get('toug', {
+                    maxChanges: 0
+                })).to.deep.equal(nullValue);
+
+                expect(fm.get('dinsorau', {
+                    maxChanges: 2
+                })).to.deep.equal(nullValue);
+            });
+
+            it('should find words when the distance is more than or equal to required', function() {
+                expect(fm.get('toug', {
+                    maxChanges: 1
+                }).value).to.equal('tough');
+
+                expect(fm.get('dinosrau', {
+                    maxChanges: 3
+                }).value).to.equal('dinosaur');
+            });
         });
     });
 
